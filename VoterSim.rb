@@ -85,9 +85,103 @@ def list(people)
 	gets
 end
 
-def update
+def update(people)
+	puts `clear`
+	puts "Who would you like to update? To see a list of all available people, type list"
+	choice = gets.chomp.downcase.capitalize
+
+	if choice == "List"
+		list(people)
+		update(people)
+	end
+
+	found = false
+	updating = nil
+	people.each do |person|
+		if person.name == choice
+			updating = person
+			found = true
+		end
+	end
+	unless found
+		puts "I'm sorry, I can't find that person. Please press enter to try again."
+		gets
+		update(people)
+	end
+
+	if updating.politician
+		puts `clear`
+		valid_response = false
+		unless valid_response
+			puts `clear`
+			puts "Would you like to change their name or their party?"
+			choice = gets.chomp.downcase
+			case choice
+			when "name"
+				puts `clear`
+				puts "Please enter their new name."
+				choice = gets.chomp.downcase.capitalize
+				updating.name = choice
+				valid_response = true
+			when "party"
+				valid_response = false
+				until valid_response
+					puts `clear`
+					puts "Please enter their new party. Democrat or Republican."
+					options = ["democrat", "republican"]
+					choice = gets.chomp.downcase
+					if options.include? choice
+						updating.party = choice
+						valid_response = true
+					else
+						unknown_response
+						valid_response = false
+					end
+				end
+			else
+				unknown_response
+			end
+		end
+
+	else
+		puts `clear`
+		valid_response = false
+		unless valid_response
+			puts `clear`
+			puts "Would you like to change their name or their political view?"
+			choice = gets.chomp.downcase
+			case choice
+			when "name"
+				puts `clear`
+				puts "Please enter their new name."
+				choice = gets.chomp.downcase.capitalize
+				updating.name = choice
+				valid_response = true
+			when "political view"
+				valid_response = false
+				until valid_response
+					puts `clear`
+					puts "Please enter their new political view. Liberal, Conservative, Tea Party, Socialist, or Neutral."
+					options = ["liberal", "conservative", "tea party", "socialist", "neutral"]
+					choice = gets.chomp.downcase
+					if options.include? choice
+						updating.view = choice
+						valid_response = true
+					else
+						unknown_response
+						valid_response = false
+					end
+				end
+			else
+				unknown_response
+			end
+		end
+
+	end
 
 end
+
+
 
 def vote
 
@@ -108,7 +202,13 @@ until time_to_vote
 	when "list"
 		list(people)
 	when "update"
-		update
+		if people.empty?
+			puts "Sorry, there is no one available to update."
+			puts "Please press enter to continue"
+			gets
+		else
+			update(people)
+		end
 	when "vote"
 		vote
 		time_to_vote = true
