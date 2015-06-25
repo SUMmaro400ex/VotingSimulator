@@ -1,23 +1,21 @@
 #VoterSim.rb
 
 class Person
-	attr_accessor :name, :view
+	attr_accessor :name, :view, :party
 	
-	def initialize(name, view)
+	def initialize(name, view, party, politician)
 		@name = name 
 		@view = view
-	end
-
-end
-
-class Politcian < Person
-	attr_accessor :party
-
-	def party(party)
 		@party = party
+		@politician = politician
 	end
 
 end
+
+# class Politcian < Person
+
+
+# end
 
 def unknown_response
 	puts "I'm sorry. I didn't get that. Press enter to try again"
@@ -46,7 +44,7 @@ def create
 				valid_response = true
 			end
 		end
-		Person.new(name,view)
+		Person.new(name,view, nil, false)
 	when "politician"
 
 	else
