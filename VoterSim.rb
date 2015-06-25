@@ -1,5 +1,23 @@
 #VoterSim.rb
 
+class World
+	attr_accessor :person
+	
+	def initialize
+		@person = []
+	end
+
+	def add_person(person)
+		@person << person
+	end
+
+	def compaign
+
+	end
+
+end
+
+
 class Person
 	attr_accessor :name, :view, :party, :politician
 	
@@ -16,10 +34,7 @@ class Person
 
 end
 
-# class Politcian < Person
-
-
-# end
+world.World.new
 
 def unknown_response
 	puts "I'm sorry. I didn't get that. Press enter to try again"
@@ -210,6 +225,9 @@ until time_to_vote
 			update(people)
 		end
 	when "vote"
+		
+		people.each do |person|
+
 		vote
 		time_to_vote = true
 	else
