@@ -10,6 +10,10 @@ class Person
 		@politician = politician
 	end
 
+	def stump_speech
+
+	end
+
 end
 
 # class Politcian < Person
@@ -46,7 +50,22 @@ def create
 		end
 		Person.new(name,view, nil, false)
 	when "politician"
-
+		puts `clear`
+		puts "What is the politician's name?"
+		name = gets.chomp.downcase.capitalize
+		valid_response = false
+		options = ["democrat", "republican"]
+		until valid_response
+			puts `clear`
+			puts "Which party does the politician belong to? Democrat or Republican"
+			party = gets.chomp.downcase
+			if !options.include? party
+				unknown_response
+			else
+				valid_response = true
+			end
+		end
+		Person.new(name,nil, party, true)
 	else
 		create
 	end
