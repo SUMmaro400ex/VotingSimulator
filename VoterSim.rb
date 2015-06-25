@@ -1,7 +1,7 @@
 #VoterSim.rb
 
 class Person
-	attr_accessor :name, :view, :party
+	attr_accessor :name, :view, :party, :politician
 	
 	def initialize(name, view, party, politician)
 		@name = name 
@@ -73,8 +73,16 @@ def create
 end
 
 
-def list
-
+def list(people)
+	people.each do |person|
+		if person.politician
+			puts "Politician: #{person.name}, #{person.party}"
+		else
+			puts "Voter: #{person.name}, #{person.view}"
+		end
+	end
+	puts "Press Enter to continue"
+	gets
 end
 
 def update
@@ -98,7 +106,7 @@ until time_to_vote
 	when "create"
 		people << create
 	when "list"
-		list
+		list(people)
 	when "update"
 		update
 	when "vote"
