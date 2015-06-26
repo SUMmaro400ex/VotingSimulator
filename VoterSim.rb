@@ -1,14 +1,30 @@
 #VoterSim.rb
 
 class World
-	attr_accessor :person
+	attr_accessor :voters, :politicians
 	
 	def initialize
-		@person = []
+		@voters = []
+		@politicians = []
 	end
 
 	def add_person(person)
-		@person << person
+		if person.politician
+			@politicians << person
+		else
+			@voters << person
+		end
+	def list
+		@voters.each do |voter|
+			puts "Voters: #{voter.name}, #{voter.view}" 
+		end
+		@politicians.each do |politician|
+			puts "Politicians: #{politician.name}, #{politician.party}"
+		end
+		puts "Press enter to continue."
+		gets
+	end
+
 	end
 
 	def compaign
@@ -34,14 +50,13 @@ class Person
 
 end
 
-world.World.new
 
 def unknown_response
 	puts "I'm sorry. I didn't get that. Press enter to try again"
 	gets
 end
 
-def create
+def create(world)
 	puts `clear`
 	valid_response = false
 	puts "What would you like to create? Politician or Person"
@@ -63,7 +78,8 @@ def create
 				valid_response = true
 			end
 		end
-		Person.new(name,view, nil, false)
+		person = Person.new(name,view, nil, false)
+		world.add_person(person)
 	when "politician"
 		puts `clear`
 		puts "What is the politician's name?"
@@ -80,8 +96,10 @@ def create
 				valid_response = true
 			end
 		end
-		Person.new(name,nil, party, true)
+		person = Person.new(name,view, nil, true)
+		world.add_person(person)
 	else
+		unknown_response
 		create
 	end
 	
@@ -204,7 +222,15 @@ end
 
 
 time_to_vote=false
+world = World.new
 people = []
+
+def test_people(world)
+	world.add_person(Person.new("Jon","liberal",nil,false))
+	world.add_person(Person.new("Bill",nil,"democrat",true))
+end
+
+test_people(world)
 
 until time_to_vote
 	puts `clear`
@@ -213,9 +239,9 @@ until time_to_vote
 
 	case choice
 	when "create"
-		people << create
+		create(world)
 	when "list"
-		list(people)
+		world.list
 	when "update"
 		if people.empty?
 			puts "Sorry, there is no one available to update."
@@ -226,7 +252,7 @@ until time_to_vote
 		end
 	when "vote"
 		
-		people.each do |person|
+		# people.each do |person|
 
 		vote
 		time_to_vote = true
