@@ -28,25 +28,112 @@ class World
 	end
 
 
-	def compaign
+	def vote
+		@voters.each do |voter|
+			changed = false
+			random_num = Random.new
+			vote_num = random_num.rand(100) + 1
+			puts "#{voter.name} listened to #{@politicians.sample.name}'s speach."
+			case voter.view
+			when "liberal"
+				if vote_num > 75
+					voter.vote = "Republican"
+					changed = true
+				else
+					voter.vote = "Democrat"
+				end
+			when "conservative"
+				if vote_num > 75
+					voter.vote = "Democrat"
+					changed = true
+				else
+					voter.vote = "Republican"
+				end
+			when "tea party"
+				if vote_num > 90
+					voter.vote = "Democrat"
+					changed = true
+				else
+					voter.vote = "Republican"
+				end
+			when "socialist"
+				if vote_num > 90
+					voter.vote = "Republican"
+					changed = true
+				else
+					voter.vote = "Democrat"
+				end		
+			else
+				if vote_num > 50
+					voter.vote = "Republican"
+					changed = true
+				else
+					voter.vote = "Democrat"
+				end	
+			end
+			if changed
+				puts "#{voter.name} changed their mind."
+			end
+			puts "#{voter.name} will be voting for the #{voter.vote}."
+		end
+		
+		@politicians.each do |politician|
+			speaker = politicians.sample
+			while speaker == politician
+				speaker = politicians.sample
+			end
+			puts "#{politician.name} listened to #{speaker.name}'s speach.
+			\r#{politician.name} says that #{speaker.name} is unfit for office."
+			politician.vote = politician.party
+		end	
 
+		democrat_votes = 0
+		republican_votes = 0
+
+		@politicians.each do |politician|
+			if politician.vote == "republican"
+				republican_votes +=1
+			else
+				democrat_votes +=1
+			end
+		end
+
+		@voters.each do |voter|
+			if voter.vote == "republican"
+				republican_votes +=1
+			else
+				democrat_votes +=1
+			end
+		end
+		
+		republican_primary_winner = politicians.sample
+		while republican_primary_winner.party != "republican"
+			republican_primary_winner = politicians.sample
+		end
+
+		democrat_primary_winner = politicians.sample
+		while democrat_primary_winner.party != "democrat"
+			democrat_primary_winner = politicians.sample
+		end
+
+		if democrat_votes > republican_votes
+			puts "#{democrat_primary_winner.name} the Democrat wins!"
+		else
+			puts "#{republican_primary_winner.name} the republican wins."
+		end
 	end
 
 end
 
 
 class Person
-	attr_accessor :name, :view, :party, :politician
+	attr_accessor :name, :view, :party, :politician, :vote
 	
 	def initialize(name, view, party, politician)
 		@name = name 
 		@view = view
 		@party = party
 		@politician = politician
-	end
-
-	def stump_speech
-
 	end
 
 end
@@ -216,19 +303,14 @@ def update(world)
 end
 
 
-
-def vote
-
-end
-
-
 time_to_vote=false
 world = World.new
-# people = []
 
 def test_people(world)
 	world.add_person(Person.new("Jon","liberal",nil,false))
 	world.add_person(Person.new("Bill",nil,"democrat",true))
+	world.add_person(Person.new("George",nil,"republican",true))
+
 end
 
 test_people(world)
@@ -245,18 +327,32 @@ until time_to_vote
 		world.list
 	when "update"
 		if world.voters.empty? && world.politicians.empty?
-			puts "Sorry, there is no one available to update."
-			puts "Please press enter to continue"
+			puts "Sorry, there is no one available to update.
+				\rPlease press enter to continue"
 			gets
 		else
 			update(world)
 		end
 	when "vote"
+		republican = democrat = false
 		
-		# people.each do |person|
+		world.politicians.each do |politician|
+			if politician.party == "republican"
+				republican = true
+			else
+				democrat = true
+			end
+		end
 
-		vote
-		time_to_vote = true
+		if republican && democrat
+			world.vote
+			time_to_vote = true
+		else
+			puts `clear` 
+			puts "You must have atleast one republican and one democrat to run the simulation.
+				\rPress enter to continue."
+			gets
+		end
 	else
 		unknown_response
 	end
