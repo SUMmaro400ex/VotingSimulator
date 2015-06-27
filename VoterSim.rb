@@ -16,6 +16,14 @@ class World
 		end
 	end
 
+	def remove_person(person)
+		if person.politician
+			@politicians.delete(person)
+		else
+			@voters.delete(person)
+		end
+	end
+
 	def list
 		@voters.each do |voter|
 			puts "Voters: #{voter.name}, #{voter.view}" 
@@ -238,9 +246,12 @@ def update(world)
 		valid_response = false
 		until valid_response
 			puts `clear`
-			puts "Would you like to change their name or their party?"
+			puts "What would you like to change? Name, party, remove."
 			choice = gets.chomp.downcase
 			case choice
+			when "remove"
+				world.remove_person(updating)
+				valid_response = true
 			when "name"
 				puts `clear`
 				puts "Please enter their new name."
@@ -270,9 +281,12 @@ def update(world)
 		valid_response = false
 		until valid_response
 			puts `clear`
-			puts "Would you like to change their name or their political view?"
+			puts "What would you like to change? Name, political view, remove."
 			choice = gets.chomp.downcase
 			case choice
+			when "remove"
+				world.remove_person(updating)
+				valid_response = true
 			when "name"
 				puts `clear`
 				puts "Please enter their new name."
@@ -335,7 +349,6 @@ until time_to_vote
 		end
 	when "vote"
 		republican = democrat = false
-		
 		world.politicians.each do |politician|
 			if politician.party == "republican"
 				republican = true
@@ -356,12 +369,6 @@ until time_to_vote
 	else
 		unknown_response
 	end
-
 end
-
-# def test(people)
-# 	p people
-# end
-# test (people)
 
 
