@@ -98,11 +98,14 @@ class World
 			primaries.party == "republican" ? republican_winner = primaries : democrat_winner = primaries
 		end
 
-		#determine the winner by whoever has more votes
+		#Determine the winner by whoever has more votes
+		#If its a tie, tell the user and suggest adding an odd number of people next simulation
 		if democrat_votes > republican_votes
 			puts "#{democrat_winner.name} the Democrat wins!"
-		else
+		elsif republican_votes > democrat_votes
 			puts "#{republican_winner.name} the republican wins."
+		else
+			puts "It's a tie! Try adding an odd number of people next time."
 		end
 	end
 end
