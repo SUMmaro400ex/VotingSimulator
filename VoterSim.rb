@@ -5,7 +5,6 @@ include VotingSimMethods
 
 time_to_vote=false
 world = World.new
-test_people(world)
 
 until time_to_vote
 	options=["create","list", "update", "vote"]
@@ -32,7 +31,7 @@ until time_to_vote
 			time_to_vote = true
 		else
 			puts `clear` 
-			puts "You must have atleast one republican and one democrat to run the simulation.\nPress enter to continue."
+			puts "You must have at least one republican and one democrat to run the simulation.\nPress enter to continue."
 			gets
 		end
 	end

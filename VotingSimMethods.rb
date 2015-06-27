@@ -32,7 +32,12 @@ module VotingSimMethods
 			world.add_person(Person.new(name,nil, party, true))
 		end
 	end
-
+	def change_name(updating)
+		puts `clear`
+		puts "Please enter their new name."
+		choice = gets.chomp.downcase.capitalize
+		updating.name = choice
+	end
 	def update(world)
 		puts `clear`
 		dont_list = false
@@ -69,44 +74,22 @@ module VotingSimMethods
 		if updating.politician
 			options = ["name","party","remove"]
 			choice = get_input("What would you like to change? Name, party, remove.",options)
-			case choice
-			when "remove"
-				world.remove_person(updating)
-			when "name"
-				puts `clear`
-				puts "Please enter their new name."
-				choice = gets.chomp.downcase.capitalize
-				updating.name = choice
-			else
+			if choice == "party"
 				options = ["democrat","republican"]
 				choice = get_input("Please enter their new party. Democrat or Republican",options)
 				updating.party = choice
 			end
-
 		else
 			options = ["name","political view","remove"]
 			choice = get_input("What would you like to change? Name, political view, remove.",options)
-			case choice
-			when "remove"
-				world.remove_person(updating)
-			when "name"
-				puts `clear`
-				puts "Please enter their new name."
-				choice = gets.chomp.downcase.capitalize
-				updating.name = choice
-			else
+			if choice == "political view"
 				options = ["liberal", "conservative", "tea party", "socialist", "neutral"]
 				choice = get_input("Please enter their new political view. Liberal, Conservative, Tea Party, Socialist, or Neutral.",options)
 				updating.view = choice
 			end
 		end
+
+		world.remove_person(updating) if choice == "remove"
+		change_name(updating) if choice == "name"
 	end
-
-	def test_people(world)
-		world.add_person(Person.new("Jon","liberal",nil,false))
-		world.add_person(Person.new("Bill",nil,"democrat",true))
-		world.add_person(Person.new("George",nil,"republican",true))
-
-	end
-
 end

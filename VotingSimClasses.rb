@@ -29,10 +29,9 @@ class World
 	def vote
 		@voters.each do |voter|
 			puts "#{voter.name} listened to #{@politicians.sample.name}'s speach."
-			vote_num = Random.new.rand(100) + 1
 			views = {"liberal" => 75, "socialist" => 90, "nuetral" => 50, "conservative" => 25, "tea party" =>10}
-			vote_num > views[voter.view] ? voter.vote = "republican" : voter.vote = "democrat"
-
+			(Random.new.rand(100) + 1) > views[voter.view] ? voter.vote = "republican" : voter.vote = "democrat"
+			
 			if (voter.view == "liberal" || voter.view == "socialist") && voter.vote == "republican"
 				puts "#{voter.name} changed their mind."
 			elsif (voter.view == "conservative" || voter.view == "tea party") && voter.vote == "democrat"
@@ -58,20 +57,16 @@ class World
 			end
 		end
 		
-		republican_primary_winner = politicians.sample
-		while republican_primary_winner.party != "republican"
-			republican_primary_winner = politicians.sample
-		end
-
-		democrat_primary_winner = politicians.sample
-		while democrat_primary_winner.party != "democrat"
-			democrat_primary_winner = politicians.sample
+		republican_winner = democrat_winner = nil
+		while republican_winner.nil? || democrat_winner.nil?
+			primaries = politicians.sample
+			primaries.party == "republican" ? republican_winner = primaries : democrat_winner = primaries
 		end
 
 		if democrat_votes > republican_votes
-			puts "#{democrat_primary_winner.name} the Democrat wins!"
+			puts "#{democrat_winner.name} the Democrat wins!"
 		else
-			puts "#{republican_primary_winner.name} the republican wins."
+			puts "#{republican_winner.name} the republican wins."
 		end
 	end
 end
