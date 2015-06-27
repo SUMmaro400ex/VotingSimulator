@@ -35,53 +35,19 @@ class World
 		gets
 	end
 
-
 	def vote
 		@voters.each do |voter|
-			changed = false
-			random_num = Random.new
-			vote_num = random_num.rand(100) + 1
 			puts "#{voter.name} listened to #{@politicians.sample.name}'s speach."
-			case voter.view
-			when "liberal"
-				if vote_num > 75
-					voter.vote = "Republican"
-					changed = true
-				else
-					voter.vote = "Democrat"
-				end
-			when "conservative"
-				if vote_num > 75
-					voter.vote = "Democrat"
-					changed = true
-				else
-					voter.vote = "Republican"
-				end
-			when "tea party"
-				if vote_num > 90
-					voter.vote = "Democrat"
-					changed = true
-				else
-					voter.vote = "Republican"
-				end
-			when "socialist"
-				if vote_num > 90
-					voter.vote = "Republican"
-					changed = true
-				else
-					voter.vote = "Democrat"
-				end		
-			else
-				if vote_num > 50
-					voter.vote = "Republican"
-					changed = true
-				else
-					voter.vote = "Democrat"
-				end	
-			end
-			if changed
+			vote_num = Random.new.rand(100) + 1
+			views = {"liberal" => 75, "socialist" => 90, "nuetral" => 50, "conservative" => 25, "tea party" =>10}
+			vote_num > views[voter.view] ? voter.vote = "republican" : voter.vote = "democrat"
+
+			if (voter.view == "liberal" || voter.view == "socialist") && voter.vote == "republican"
+				puts "#{voter.name} changed their mind."
+			elsif (voter.view == "conservative" || voter.view == "tea party") && voter.vote == "democrat"
 				puts "#{voter.name} changed their mind."
 			end
+
 			puts "#{voter.name} will be voting for the #{voter.vote}."
 		end
 		
@@ -90,13 +56,11 @@ class World
 			while speaker == politician
 				speaker = politicians.sample
 			end
-			puts "#{politician.name} listened to #{speaker.name}'s speach.
-			\r#{politician.name} says that #{speaker.name} is unfit for office."
+			puts "#{politician.name} listened to #{speaker.name}'s speach.\n#{politician.name} says that #{speaker.name} is unfit for office."
 			politician.vote = politician.party
 		end	
 
-		democrat_votes = 0
-		republican_votes = 0
+		republican_votes = democrat_votes = 0
 
 		@politicians.each do |politician|
 			if politician.vote == "republican"
@@ -146,95 +110,67 @@ class Person
 
 end
 
-
-def unknown_response
-	puts "I'm sorry. I didn't get that. Press enter to try again"
-	gets
+def get_input(prompt,options)
+	valid_response = false
+	until valid_response
+		puts `clear`
+		puts prompt
+		answer = gets.chomp.downcase
+		if options.include? answer
+			valid_response = true
+		else
+			puts "I'm sorry, I didn't get that. Please press enter to try again."
+			gets
+		end
+	end
+	answer
 end
 
 def create(world)
+	options=["person","politician"]
+	choice = get_input("What would you like to create? Politician or Person",options)
 	puts `clear`
-	valid_response = false
-	until valid_response
-		puts "What would you like to create? Politician or Person"
-		choice = gets.chomp.downcase
-		case choice
-		when "person"
-			puts `clear`
-			puts "What is the person's name?"
-			name = gets.chomp.downcase.capitalize
-			valid_response = false
-			options = ["liberal", "conservative", "tea party", "socialist", "neutral"]
-			until valid_response
-				puts `clear`
-				puts "What is their political view? Liberal, Conservative, Tea Party, Socialist, or Neutral"
-				view = gets.chomp.downcase
-				if !options.include? view
-					unknown_response
-				else
-					valid_response = true
-				end
-			end
-			person = Person.new(name,view, nil, false)
-			world.add_person(person)
-		when "politician"
-			puts `clear`
-			puts "What is the politician's name?"
-			name = gets.chomp.downcase.capitalize
-			valid_response = false
-			options = ["democrat", "republican"]
-			until valid_response
-				puts `clear`
-				puts "Which party does the politician belong to? Democrat or Republican"
-				party = gets.chomp.downcase
-				if !options.include? party
-					unknown_response
-				else
-					valid_response = true
-				end
-			end
-			person = Person.new(name,nil, party, true)
-			world.add_person(person)
-		else
-			unknown_response
-			puts `clear`
-		end
+	puts "What is the #{choice}'s name?"
+	name = gets.chomp.downcase.capitalize
+	if choice == "person"
+		options = ["liberal", "conservative", "tea party", "socialist", "neutral"]
+		view = get_input("What is their political view? Liberal, Conservative, Tea Party, Socialist, or Neutral",options)
+		world.add_person(Person.new(name,view, nil, false))
+	else
+		options = ["democrat", "republican"]
+		party = get_input("Which party does the politician belong to? Democrat or Republican?",options)
+		world.add_person(Person.new(name,nil, party, true))
 	end
 end
 
 def update(world)
 	puts `clear`
-	check = false
+	dont_list = false
 
-	until check
+	until dont_list
 		puts "Who would you like to update? To see a list of all available people, type list"
 		choice = gets.chomp.downcase.capitalize
-
 		if choice == "List"
 			world.list
 			puts `clear`
 		else
-			check = true
+			dont_list = true
 		end
 	end
 
 	found = false
 	updating = nil
-	
+	voting_pool = [world.voters, world.politicians]
 	until found
-		world.voters.each do |person|
-			if person.name == choice
-				updating = person
-				found = true
-			end
-		end
-		world.politicians.each do |person|
-			if person.name == choice
-				updating = person
-				found = true
+		voting_pool.each do |group|
+			group.each do |person|
+				if person.name == choice
+					updating = person
+					found = true
+				end
 			end
 		end	
-		
+
 		unless found 
 			puts "I'm sorry, I can't find that person. Please enter a different name."
 			choice = gets.chomp.downcase.capitalize
@@ -242,80 +178,40 @@ def update(world)
 	end
 
 	if updating.politician
-		puts `clear`
-		valid_response = false
-		until valid_response
+		options = ["name","party","remove"]
+		choice = get_input("What would you like to change? Name, party, remove.",options)
+		case choice
+		when "remove"
+			world.remove_person(updating)
+		when "name"
 			puts `clear`
-			puts "What would you like to change? Name, party, remove."
-			choice = gets.chomp.downcase
-			case choice
-			when "remove"
-				world.remove_person(updating)
-				valid_response = true
-			when "name"
-				puts `clear`
-				puts "Please enter their new name."
-				choice = gets.chomp.downcase.capitalize
-				updating.name = choice
-				valid_response = true
-			when "party"
-				until valid_response
-					puts `clear`
-					puts "Please enter their new party. Democrat or Republican."
-					options = ["democrat", "republican"]
-					choice = gets.chomp.downcase
-					if options.include? choice
-						updating.party = choice
-						valid_response = true
-					else
-						unknown_response
-					end
-				end
-			else
-				unknown_response
-			end
+			puts "Please enter their new name."
+			choice = gets.chomp.downcase.capitalize
+			updating.name = choice
+		else
+			options = ["democrat","republican"]
+			choice = get_input("Please enter their new party. Democrat or Republican",options)
+			updating.party = choice
 		end
 
 	else
-		puts `clear`
-		valid_response = false
-		until valid_response
+		options = ["name","political view","remove"]
+		choice = get_input("What would you like to change? Name, political view, remove.",options)
+		case choice
+		when "remove"
+			world.remove_person(updating)
+		when "name"
 			puts `clear`
-			puts "What would you like to change? Name, political view, remove."
-			choice = gets.chomp.downcase
-			case choice
-			when "remove"
-				world.remove_person(updating)
-				valid_response = true
-			when "name"
-				puts `clear`
-				puts "Please enter their new name."
-				choice = gets.chomp.downcase.capitalize
-				updating.name = choice
-				valid_response = true
-			when "political view"
-				until valid_response
-					puts `clear`
-					puts "Please enter their new political view. Liberal, Conservative, Tea Party, Socialist, or Neutral."
-					options = ["liberal", "conservative", "tea party", "socialist", "neutral"]
-					choice = gets.chomp.downcase
-					if options.include? choice
-						updating.view = choice
-						valid_response = true
-					else
-						unknown_response
-						valid_response = false
-					end
-				end
-			else
-				unknown_response
-			end
+			puts "Please enter their new name."
+			choice = gets.chomp.downcase.capitalize
+			updating.name = choice
+		else
+			options = ["liberal", "conservative", "tea party", "socialist", "neutral"]
+			choice = get_input("Please enter their new political view. Liberal, Conservative, Tea Party, Socialist, or Neutral.",options)
+			updating.view = choice
 		end
-
 	end
-
 end
-
 
 time_to_vote=false
 world = World.new
@@ -330,10 +226,8 @@ end
 test_people(world)
 
 until time_to_vote
-	puts `clear`
-	puts "What would you like to do? Create, List, Update, or Vote"
-	choice = gets.chomp.downcase
-
+	options=["create","list", "update", "vote"]
+	choice = get_input("What would you like to do? Create, List, Update, or Vote", options)
 	case choice
 	when "create"
 		create(world)
@@ -356,7 +250,6 @@ until time_to_vote
 				democrat = true
 			end
 		end
-
 		if republican && democrat
 			world.vote
 			time_to_vote = true
@@ -366,8 +259,6 @@ until time_to_vote
 				\rPress enter to continue."
 			gets
 		end
-	else
-		unknown_response
 	end
 end
 
