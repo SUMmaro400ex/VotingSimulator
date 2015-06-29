@@ -23,7 +23,7 @@ until time_to_vote
 		#Calls the list method of the world object
 		world.list
 	when "update"
-		#Check if there are any in the world. Can't update if the world is empty
+		#Check if there are any people in the world. Can't update if the world is empty
 		if world.voters.empty? && world.politicians.empty?
 			puts "Sorry, there is no one available to update.\nPlease press enter to continue"
 			gets
